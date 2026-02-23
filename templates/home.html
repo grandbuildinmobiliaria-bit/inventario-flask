@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventario</title>
+    <style>
+        body { font-family:"Segoe UI", Arial, sans-serif; background:#f4f6f8; text-align:center; padding:40px; }
+        .boton { background:#3498db; color:#fff; padding:12px 20px; border:none; border-radius:6px; margin:10px; cursor:pointer; font-weight:bold; text-decoration:none; }
+        .boton:hover { background:#2980b9; }
+    </style>
+</head>
+<body>
+    <h1>✅ Inventario conectado con Flask</h1>
+    <a href="{{ url_for('nuevo_producto') }}" class="boton">➕ Añadir producto al resumen</a>
+    <a href="{{ url_for('crear_producto') }}" class="boton">🆕 Crear nuevo producto</a>
+    <a href="{{ url_for('resumen') }}" class="boton">📋 Ver resumen</a>
+    <a href="{{ url_for('lista_productos') }}" class="boton">📑 Lista completa de productos</a> <!-- 👈 Nuevo botón -->
+
+</body>
+</html>

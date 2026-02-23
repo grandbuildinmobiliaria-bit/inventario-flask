@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Añadir producto</title>
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 500px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .boton {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .boton:hover {
+            background-color: #2980b9;
+        }
+        #reader {
+            margin-top: 15px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            width: 100%;
+            display: none;
+        }
+        .acciones {
+            text-align: center;
+            margin-top: 20px;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Añadir producto al resumen</h1>
+
+    <!-- Opción búsqueda por listas -->
+    <div class="card">
+        <form method="POST">
+            <label>Familia:</label>
+            <select name="familia" required>
+                {% for f in familias %}
+                    <option value="{{ f['codigo'] }}">{{ f['nombre'] }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Tipo:</label>
+            <select name="tipo" required>
+                {% for t in tipos %}
+                    <option value="{{ t['codigo'] }}">{{ t['nombre'] }}</option>
+                {% endfor %}
+            </select>
+
+            {% if productos %}
+                <label>Producto:</label>
+                <select name="producto" required>
+                    {% for p in productos %}
+                        <option value="{{ p['CODIGO'] }}">{{ p['CODIGO'] }} – {{ p['NOMBRE'] }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="boton">🔍 Ver producto</button>
+            {% else %}
+                <button type="submit" class="boton">🔍 Buscar productos</button>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Opción escaneo QR -->
+    <div class="card">
+        <h2>Escanear QR</h2>
+        <button class="boton" onclick="activarScanner()">📷 Activar escáner QR</button>
+        <div id="reader"></div>
+
+        <form id="qrForm" method="POST" style="display:none;">
+            <input type="hidden" id="codigoQR" name="codigo">
+        </form>
+    </div>
+
+    <div class="acciones">
+        <a href="{{ url_for('resumen') }}">📋 Ver resumen</a>
+    </div>
+
+    <!-- Botón de volver al inicio -->
+    <div style="text-align:center; margin-top:20px;">
+        <a href="{{ url_for('home') }}" 
+           style="background:#3498db; color:#fff; padding:10px 16px; border-radius:6px; text-decoration:none; font-weight:bold;">
+           🏠 Volver al inicio
+        </a>
+    </div>
+
+    <script>
+        let html5QrcodeScanner;
+        let escaneado = false;
+
+        function activarScanner() {
+            document.getElementById("reader").style.display = "block";
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader",
+                { fps: 10, qrbox: 250 }
+            );
+            html5QrcodeScanner.render(onScanSuccess, onScanError);
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            if (escaneado) return;
+            escaneado = true;
+
+            let codigo = decodedText.trim();
+            try {
+                let url = new URL(decodedText);
+                if (url.pathname.includes("/producto/")) {
+                    codigo = url.pathname.split("/producto/")[1];
+                }
+            } catch (e) {}
+
+            if (!codigo) {
+                alert("❌ QR inválido");
+                escaneado = false;
+                return;
+            }
+
+            alert("✅ Producto escaneado: " + codigo);
+
+            html5QrcodeScanner.clear().then(() => {
+                document.getElementById("codigoQR").value = codigo;
+                document.getElementById("qrForm").submit();
+            }).catch(err => {
+                console.error("Error al detener escáner:", err);
+                escaneado = false;
+            });
+        }
+
+        function onScanError(errorMessage) {
+            // silencioso
+        }
+    </script>
+</body>
+</html>
