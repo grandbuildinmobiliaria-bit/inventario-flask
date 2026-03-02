@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Añadir producto</title>
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
     <style>
@@ -54,7 +54,7 @@
             border-radius: 8px;
             padding: 10px;
             width: 100%;
-            display: none;
+            height: 400px;
         }
         .acciones {
             text-align: center;
@@ -68,13 +68,18 @@
         a:hover {
             text-decoration: underline;
         }
+        #estadoScanner {
+            text-align: center;
+            color: #555;
+            margin-top: 10px;
+            font-style: italic;
+        }
     </style>
 </head>
-
 <body>
     <h1>Añadir producto al resumen</h1>
 
-    <!-- Opción búsqueda por listas -->
+    <!-- Opción búsqueda manual -->
     <div class="card">
         <form method="POST">
             <label>Familia:</label>
@@ -105,14 +110,19 @@
         </form>
     </div>
 
-    <!-- Opción escaneo QR -->
+    <!-- Opción escaneo QR con selección de cámara -->
     <div class="card">
         <h2>Escanear QR</h2>
-        <button class="boton" onclick="activarScanner()">📷 Activar escáner QR</button>
+
+        <label for="cameraSelect">Seleccionar cámara:</label>
+        <select id="cameraSelect"></select>
+        <button id="activarScannerBtn" class="boton">📷 Activar escáner QR</button>
+        <p id="estadoScanner">Escáner apagado</p>
+
         <div id="reader"></div>
 
         <form id="qrForm" method="POST" style="display:none;">
-            <input type="hidden" id="codigoQR" name="codigo">
+            <input type="hidden" id="codigoQR" name="codigo" />
         </form>
     </div>
 
@@ -120,7 +130,6 @@
         <a href="{{ url_for('resumen') }}">📋 Ver resumen</a>
     </div>
 
-    <!-- Botón de volver al inicio -->
     <div style="text-align:center; margin-top:20px;">
         <a href="{{ url_for('home') }}" 
            style="background:#3498db; color:#fff; padding:10px 16px; border-radius:6px; text-decoration:none; font-weight:bold;">
@@ -131,48 +140,83 @@
     <script>
         let html5QrcodeScanner;
         let escaneado = false;
+        const estadoScanner = document.getElementById("estadoScanner");
 
-        function activarScanner() {
-            document.getElementById("reader").style.display = "block";
-            html5QrcodeScanner = new Html5QrcodeScanner(
-                "reader",
-                { fps: 10, qrbox: 250 }
-            );
-            html5QrcodeScanner.render(onScanSuccess, onScanError);
-        }
+        navigator.mediaDevices.enumerateDevices()
+        .then(devices => {
+            const videoDevices = devices.filter(d => d.kind === "videoinput");
+            const cameraSelect = document.getElementById("cameraSelect");
+            videoDevices.forEach((device, i) => {
+                const option = document.createElement("option");
+                option.value = device.deviceId;
+                option.text = device.label || `Cámara ${i+1}`;
+                cameraSelect.appendChild(option);
+            });
+            console.log("Cámaras listadas:", videoDevices.length);
+        })
+        .catch(err => {
+            console.error("Error al enumerar cámaras:", err);
+            estadoScanner.textContent = "❌ No se pudieron listar las cámaras";
+        });
 
-        function onScanSuccess(decodedText, decodedResult) {
-            if (escaneado) return;
-            escaneado = true;
+        document.getElementById("activarScannerBtn").addEventListener("click", function() {
+            const cameraId = document.getElementById("cameraSelect").value;
+            console.log("Botón activar cámara presionado, cámara seleccionada:", cameraId);
 
-            let codigo = decodedText.trim();
-            try {
-                let url = new URL(decodedText);
-                if (url.pathname.includes("/producto/")) {
-                    codigo = url.pathname.split("/producto/")[1];
-                }
-            } catch (e) {}
-
-            if (!codigo) {
-                alert("❌ QR inválido");
-                escaneado = false;
-                return;
+            if (!html5QrcodeScanner) {
+                html5QrcodeScanner = new Html5Qrcode("reader");
+                console.log("Instancia html5QrcodeScanner creada");
             }
 
-            alert("✅ Producto escaneado: " + codigo);
+            const config = { fps: 10, qrbox: 250 };
+            const constraints = { deviceId: { exact: cameraId } };
 
-            html5QrcodeScanner.clear().then(() => {
-                document.getElementById("codigoQR").value = codigo;
-                document.getElementById("qrForm").submit();
+            html5QrcodeScanner.start(
+                constraints,
+                config,
+                (decodedText, decodedResult) => {
+                    if (escaneado) return;
+                    escaneado = true;
+
+                    let codigo = decodedText.trim();
+                    try {
+                        const url = new URL(decodedText);
+                        if (url.pathname.includes("/producto/")) {
+                            codigo = url.pathname.split("/producto/")[1];
+                        }
+                    } catch(e) {}
+
+                    if (!codigo) {
+                        alert("❌ QR inválido");
+                        escaneado = false;
+                        return;
+                    }
+
+                    document.getElementById("codigoQR").value = codigo;
+                    document.getElementById("qrForm").submit();
+
+                    html5QrcodeScanner.stop()
+                    .then(() => {
+                        estadoScanner.textContent = "Escáner detenido";
+                        console.log("Escáner detenido");
+                    })
+                    .catch(err => {
+                        estadoScanner.textContent = "Error al detener escáner";
+                        console.error("Error al detener escáner:", err);
+                    });
+                },
+                (errorMessage) => {
+                    // Aquí podrías mostrar errores leves, pero para debug los imprimiremos en consola
+                    console.warn("Escaneo error:", errorMessage);
+                }
+            ).then(() => {
+                estadoScanner.textContent = "✅ Escáner activo, apunta al QR";
+                console.log("Escáner iniciado correctamente");
             }).catch(err => {
-                console.error("Error al detener escáner:", err);
-                escaneado = false;
+                estadoScanner.textContent = "❌ No se pudo activar el escáner";
+                console.error("Error al iniciar escáner:", err);
             });
-        }
-
-        function onScanError(errorMessage) {
-            // silencioso
-        }
+});
     </script>
 </body>
 </html>

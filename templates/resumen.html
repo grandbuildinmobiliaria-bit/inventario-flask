@@ -40,10 +40,6 @@
         img {
             max-width: 80px;
         }
-        .acciones {
-            text-align: center;
-            margin-top: 20px;
-        }
         .boton {
             background-color: #3498db;
             color: white;
@@ -53,14 +49,22 @@
             cursor: pointer;
             font-weight: bold;
             margin: 5px;
+            text-decoration: none;
+            display: inline-block;
         }
         .boton:hover {
             background-color: #2980b9;
         }
+        .boton.enviar { background-color: #27ae60; }
+        .boton.enviar:hover { background-color: #1e8449; }
+        .acciones {
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>Productos seleccionados</h1>
+    <h1>📋 Productos seleccionados</h1>
 
     {% if productos %}
     <table>
@@ -89,15 +93,15 @@
     </table>
 
     <div class="acciones">
-        <a href="{{ url_for('nuevo_producto') }}" class="boton">➕ Seguir añadiendo productos</a>
-        <a href="{{ url_for('confirmar') }}" class="boton">✅ Confirmar y actualizar inventario</a>
-    </div>
-    {% else %}
-    <p style="text-align:center;">No hay productos seleccionados todavía.</p>
+    {% if session['rol'] == 'operador' %}
+        <a href="{{ url_for('enviar_solicitud') }}" class="boton enviar">📤 Enviar solicitud al admin</a>
     {% endif %}
-    <div style="text-align:center; margin-top:20px;">
-    <a href="{{ url_for('home') }}" 
-       style="background:#3498db; color:#fff; padding:10px 16px; border-radius:6px; text-decoration:none; font-weight:bold;">
-       🏠 Volver al inicio
+    <a href="{{ url_for('home') }}" class="boton">🏠 Volver al inicio</a>
+    </div>
+
+    {% else %}
+    <p style="text-align:center; margin-top:30px;">No hay productos seleccionados todavía.</p>
+    {% endif %}
+
 </body>
 </html>
