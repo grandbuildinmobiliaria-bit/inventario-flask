@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear producto</title>
+    <style>
+        body { font-family: "Segoe UI", Arial, sans-serif; background:#f4f6f8; padding:20px; }
+        .card { background:#fff; padding:20px; border-radius:8px; max-width:600px; margin:auto; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+        label { font-weight:bold; display:block; margin-top:10px; }
+        input, select { width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px; }
+        .boton { background:#3498db; color:#fff; padding:10px; border:none; border-radius:4px; margin-top:15px; cursor:pointer; width:100%; }
+        .boton:hover { background:#2980b9; }
+        .alert-container { max-width:500px; margin:10px auto; }
+        .alert { padding:12px; border-radius:6px; margin-bottom:10px; font-weight:bold; text-align:center; }
+        .alert.success { background-color:#2ecc71; color:white; }
+        .alert.error { background-color:#e74c3c; color:white; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Crear nuevo producto</h1>
+
+        <!-- Bloque de mensajes flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="alert-container">
+              {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <label>Familia:</label>
+            <select name="familia" required>
+                {% for f in familias %}
+                    <option value="{{ f['codigo'] }}">{{ f['nombre'] }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Tipo:</label>
+            <select name="tipo" required>
+                {% for t in tipos %}
+                    <option value="{{ t['codigo'] }}">{{ t['nombre'] }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- El correlativo se calcula automáticamente en Flask -->
+            <label>Nombre:</label>
+            <input type="text" name="nombre" required>
+
+            <label>Stock inicial:</label>
+            <input type="number" name="stock" min="0" required>
+
+            <label>Stock mínimo:</label>
+            <input type="number" name="stock_min" min="0">
+
+            <label>Ubicación:</label>
+            <input type="text" name="ubicacion">
+
+            <label>Estado:</label>
+            <input type="text" name="estado">
+
+            <label>Fecha:</label>
+            <input type="date" name="fecha">
+
+            <label>Usuario:</label>
+            <input type="text" name="usuario">
+
+            <button type="submit" class="boton">➕ Crear producto con QR</button>
+        </form>
+    </div>
+    <div style="text-align:center; margin-top:20px;">
+    <a href="{{ url_for('home') }}" 
+       style="background:#3498db; color:#fff; padding:10px 16px; border-radius:6px; text-decoration:none; font-weight:bold;">
+       🏠 Volver al inicio
+    </a>
+</div>
+</body>
+</html>

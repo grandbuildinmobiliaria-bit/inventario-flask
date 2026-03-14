@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Inventario</title>
+
+<style>
+body{
+    font-family:"Segoe UI", Arial, sans-serif;
+    background:#f4f6f8;
+    margin:0;
+    padding:20px;
+}
+
+.top-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.bienvenida{
+    font-size:18px;
+    font-weight:bold;
+    color:#2c3e50;
+}
+
+.rol{
+    font-size:13px;
+    color:#7f8c8d;
+}
+
+.boton{
+    padding:12px 18px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:bold;
+    display:inline-block;
+    margin:8px;
+    transition:0.3s;
+    color:white;
+}
+
+.azul{ background:#3498db; }
+.azul:hover{ background:#2980b9; }
+
+.verde{ background:#27ae60; }
+.verde:hover{ background:#1e8449; }
+
+.rojo{ background:#e74c3c; }
+.rojo:hover{ background:#c0392b; }
+
+.portada{
+    background:url('{{ url_for("static", filename="banner.jpg") }}') no-repeat center center;
+    background-size:cover;
+    padding:70px;
+    border-radius:12px;
+    color:white;
+    text-align:center;
+    margin-bottom:20px;
+    text-shadow:2px 2px 4px rgba(0,0,0,0.6);
+}
+
+#fecha-hora{
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:20px;
+}
+
+.dashboard{
+    display:flex;
+    gap:25px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-bottom:30px;
+}
+
+.card{
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    width:230px;
+    text-align:center;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+
+.card h2{
+    margin:10px 0;
+    font-size:30px;
+}
+
+.card p{
+    margin:0;
+    color:#7f8c8d;
+}
+
+.actions{
+    text-align:center;
+    margin-top:20px;
+}
+
+.accesos{
+    margin-top:35px;
+    text-align:center;
+    border-top:1px solid #ddd;
+    padding-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="top-bar">
+    <div>
+        <div class="bienvenida">
+            👋 Bienvenido, {{ session['usuario'] }}
+        </div>
+        <div class="rol">
+            Rol: {{ session['rol'] }}
+        </div>
+    </div>
+
+    <a href="{{ url_for('logout') }}" class="boton rojo">
+        🚪 Cerrar sesión
+    </a>
+</div>
+
+<div class="portada">
+    <h1>📦 Sistema de Inventario</h1>
+    <p>Panel de control general</p>
+</div>
+
+<!-- FECHA Y HORA -->
+<div id="fecha-hora"></div>
+
+<!-- DASHBOARD -->
+<div class="dashboard">
+
+    <div class="card">
+        <h2>{{ total_productos }}</h2>
+        <p>Total productos</p>
+    </div>
+
+    <div class="card">
+        <h2>{{ stock_bajo }}</h2>
+        <p>Stock bajo</p>
+    </div>
+
+    {% if session['rol'] == 'admin' %}
+    <div class="card">
+        <h2>{{ solicitudes_pendientes }}</h2>
+        <p>Solicitudes pendientes</p>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- BOTONES PRINCIPALES -->
+<div class="actions">
+
+    <a href="{{ url_for('nuevo_producto') }}" class="boton azul">
+        ➕ Añadir producto
+    </a>
+
+    <a href="{{ url_for('resumen') }}" class="boton azul">
+        📋 Ver resumen
+    </a>
+
+    {% if session['rol'] == 'admin' %}
+
+        <a href="{{ url_for('crear_producto') }}" class="boton azul">
+            🆕 Crear producto
+        </a>
+
+        <a href="{{ url_for('lista_productos') }}" class="boton azul">
+            📑 Lista productos
+        </a>
+
+         <a href="{{ url_for('usuarios') }}" class="boton azul">
+        👥 Usuarios
+        </a>
+
+        <a href="{{ url_for('crear_usuario') }}" class="boton verde">
+            ➕ Crear usuario
+        </a>
+
+        <a href="{{ url_for('solicitudes') }}" class="boton verde">
+            📋 Ver solicitudes
+        </a>
+
+    {% endif %}
+
+</div>
+
+<!-- ACCESOS DIRECTOS -->
+<div class="accesos">
+
+    <a href="https://grandbuildinmobiliaria.com" 
+       target="_blank" 
+       class="boton azul">
+       🌐 Página Web
+    </a>
+
+    {% if session['rol'] == 'admin' %}
+    <a href="https://md-70.webhostbox.net:2083/" 
+       target="_blank" 
+       class="boton azul">
+       🛠️ cPanel
+    </a>
+    {% endif %}
+
+</div>
+
+<!-- SCRIPT FECHA Y HORA -->
+<script>
+function actualizarFechaHora() {
+    const ahora = new Date();
+    const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const fecha = ahora.toLocaleDateString('es-ES', opciones);
+    const hora = ahora.toLocaleTimeString('es-ES');
+    document.getElementById('fecha-hora').innerText = `${fecha} - ${hora}`;
+}
+setInterval(actualizarFechaHora, 1000);
+actualizarFechaHora();
+</script>
+
+</body>
+</html>

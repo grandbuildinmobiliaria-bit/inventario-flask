@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resumen de selección</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            max-width: 900px;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        img {
+            max-width: 80px;
+        }
+        .boton {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .boton:hover {
+            background-color: #2980b9;
+        }
+        .boton.enviar { background-color: #27ae60; }
+        .boton.enviar:hover { background-color: #1e8449; }
+        .acciones {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>📋 Productos seleccionados</h1>
+
+    {% if productos %}
+    <table>
+        <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Cantidad</th>
+            <th>Ubicación</th>
+            <th>QR</th>
+            <th>Acciones</th>
+        </tr>
+        {% for p in productos %}
+        <tr>
+            <td>{{ p['CODIGO'] }}</td>
+            <td>{{ p['NOMBRE'] }}</td>
+            <td>{{ p['cantidad'] }}</td>
+            <td>{{ p['ubicacion'] }}</td>
+            <td>
+                <img src="{{ url_for('static', filename=p['QR_PATH']) }}" alt="QR">
+            </td>
+            <td>
+                <a href="{{ url_for('eliminar', codigo=p['CODIGO']) }}" class="boton">🗑 Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="acciones">
+    {% if session['rol'] == 'operador' %}
+        <a href="{{ url_for('enviar_solicitud') }}" class="boton enviar">📤 Enviar solicitud al admin</a>
+    {% endif %}
+    <a href="{{ url_for('home') }}" class="boton">🏠 Volver al inicio</a>
+    </div>
+
+    {% else %}
+    <p style="text-align:center; margin-top:30px;">No hay productos seleccionados todavía.</p>
+    {% endif %}
+
+</body>
+</html>
