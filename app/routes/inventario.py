@@ -6,10 +6,13 @@ from app.utils.auth import login_required
 
 
 def register_inventario_routes(app):
+
     @app.route("/health", methods=["GET"])
-    @app.route("/healthz", methods=["GET"])
-    def health_check():
-        """Health check para Render: valida app + conexión a BD."""
+    def health():
+        return jsonify({"status": "ok"}), 200
+
+    @app.route("/health/db", methods=["GET"])
+    def health_db():
         try:
             conn = conectar()
             cursor = conn.cursor()
