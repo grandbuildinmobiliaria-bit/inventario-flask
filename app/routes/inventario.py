@@ -1,4 +1,4 @@
-from flask import session, request, render_template, redirect, url_for, flash
+from flask import session, request, render_template, redirect, url_for, flash, jsonify
 
 from app.models import inventario_model
 from app.database.connection import conectar
@@ -6,6 +6,21 @@ from app.utils.auth import login_required
 
 
 def register_inventario_routes(app):
+    @app.route("/health", methods=["GET"])
+    @app.route("/healthz", methods=["GET"])
+    def health_check():
+        """Health check para Render: valida app + conexión a BD."""
+        try:
+            conn = conectar()
+            cursor = conn.cursor()
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+            cursor.close()
+            conn.close()
+            return jsonify({"status": "ok", "database": "up"}), 200
+        except Exception as exc:
+            return jsonify({"status": "error", "database": "down", "detail": str(exc)}), 503
+
     @app.route("/")
     @login_required
     def home():

@@ -160,3 +160,15 @@ La integración asume una tabla `proyectos` con al menos:
 - `estado`
 
 Si aún no existe, hay que crearla en MySQL antes de usar `crear_y_registrar_proyecto`.
+
+### Health check para Render
+
+Se añadió endpoint de health check público para monitoreo:
+
+- `GET /health`
+- `GET /healthz`
+
+Respuesta esperada:
+
+- `200` con `{"status":"ok","database":"up"}` cuando API + DB están disponibles.
+- `503` con detalle cuando falla la conexión a DB.
