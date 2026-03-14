@@ -40,3 +40,20 @@ def obtener_drive_folder_id_por_codigo(codigo):
     cursor.close()
     conn.close()
     return row["drive_folder_id"] if row else None
+
+
+def obtener_proyectos():
+    """Lista proyectos registrados para mostrar en la interfaz."""
+    conn = conectar()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(
+        """
+        SELECT codigo, nombre, cliente, drive_folder_id, estado
+        FROM proyectos
+        ORDER BY id DESC
+        """
+    )
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return data

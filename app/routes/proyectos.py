@@ -1,13 +1,60 @@
 from datetime import datetime
 
-from flask import session, render_template, redirect, url_for, flash
+from flask import session, render_template, redirect, url_for, flash, request
 
-from app.models import inventario_model
+from app.models import inventario_model, proyecto_model
+from app.integrations.google_drive import GoogleDriveIntegration
 from app.services.inventario_service import enviar_solicitud, aprobar_todas_solicitudes
 from app.utils.auth import login_required
 
 
 def register_proyectos_routes(app):
+
+
+    @app.route("/proyectos")
+    @login_required
+    def proyectos():
+        if session.get("rol") != "admin":
+            flash("❌ Solo admin puede ver proyectos", "error")
+            return redirect(url_for("home"))
+
+        proyectos_db = proyecto_model.obtener_proyectos()
+        return render_template("proyectos.html", proyectos=proyectos_db)
+
+    @app.route("/proyectos/crear", methods=["GET", "POST"])
+    @login_required
+    def crear_proyecto_drive():
+        if session.get("rol") != "admin":
+            flash("❌ Solo admin puede crear proyectos", "error")
+            return redirect(url_for("home"))
+
+        if request.method == "POST":
+            codigo = request.form.get("codigo", "").strip().upper()
+            nombre = request.form.get("nombre", "").strip()
+            cliente = request.form.get("cliente", "").strip()
+            estado = request.form.get("estado", "activo").strip() or "activo"
+
+            if not codigo or not nombre or not cliente:
+                flash("⚠️ Debes completar código, nombre y cliente", "warning")
+                return render_template("crear_proyecto.html")
+
+            try:
+                integration = GoogleDriveIntegration()
+                estructura = integration.crear_y_registrar_proyecto(
+                    codigo=codigo,
+                    nombre=nombre,
+                    cliente=cliente,
+                    estado=estado,
+                )
+                flash(
+                    f"✅ Proyecto {codigo} creado. Carpeta Drive: {estructura['root_folder_id']}",
+                    "success",
+                )
+                return redirect(url_for("proyectos"))
+            except Exception as e:
+                flash(f"❌ Error al crear proyecto en Drive: {str(e)}", "error")
+
+        return render_template("crear_proyecto.html")
     @app.route("/enviar_solicitud")
     @login_required
     def enviar_solicitud_route():
