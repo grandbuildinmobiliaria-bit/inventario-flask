@@ -119,3 +119,44 @@ Regla simple inicial:
 - Diferencia inventario teórico vs físico.
 
 Estos indicadores te dirán si la automatización realmente está reduciendo carga operativa.
+
+---
+
+## 6) Integración base lista: Google Drive (service account)
+
+Se agregó `app/integrations/google_drive.py` con:
+
+- Creación de carpeta raíz por cliente/proyecto.
+- Creación automática de subcarpetas: `Planos`, `Compras`, `Guías`, `Evidencias`, `Cierre`.
+- Persistencia del `drive_folder_id` en BD usando la tabla `proyectos`.
+
+### Variables de entorno nuevas
+
+- `GOOGLE_SERVICE_ACCOUNT_FILE`: ruta al JSON de service account.
+- `GOOGLE_DRIVE_PARENT_FOLDER_ID`: carpeta padre opcional en Drive.
+
+### Uso sugerido
+
+```python
+from app.integrations.google_drive import GoogleDriveIntegration
+
+integration = GoogleDriveIntegration()
+resultado = integration.crear_y_registrar_proyecto(
+    codigo="PRJ-001",
+    nombre="Edificio Central",
+    cliente="Cliente XYZ",
+)
+print(resultado["root_folder_id"])
+```
+
+### Nota de BD
+
+La integración asume una tabla `proyectos` con al menos:
+
+- `codigo` (único)
+- `nombre`
+- `cliente`
+- `drive_folder_id`
+- `estado`
+
+Si aún no existe, hay que crearla en MySQL antes de usar `crear_y_registrar_proyecto`.
