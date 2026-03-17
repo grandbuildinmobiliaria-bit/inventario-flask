@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Usuarios</title>
+    <style>
+        body { font-family:"Segoe UI", Arial, sans-serif; background:#f4f6f8; padding:40px; text-align:center; }
+        table { width:80%; margin:20px auto; border-collapse: collapse; }
+        th, td { border:1px solid #ccc; padding:10px; text-align:center; }
+        th { background:#3498db; color:#fff; }
+        .boton { background:#3498db; color:#fff; padding:6px 12px; border:none; border-radius:4px; cursor:pointer; margin:2px; text-decoration:none; }
+        .boton:hover { background:#2980b9; }
+    </style>
+</head>
+<body>
+    <h1>👥 Gestión de Usuarios</h1>
+    <a href="{{ url_for('home') }}" class="boton">🏠 Volver al inicio</a>
+    <a href="{{ url_for('crear_usuario') }}" class="boton">➕ Crear nuevo usuario</a>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+        </tr>
+        {% for u in usuarios %}
+        <tr>
+            <td>{{ u['id'] }}</td>
+            <td>{{ u['username'] }}</td>
+            <td>{{ u['rol'] }}</td>
+            <td>
+                <a href="{{ url_for('editar_usuario', id=u['id']) }}" class="boton">✏️ Editar</a>
+                <a href="{{ url_for('borrar_usuario', id=u['id']) }}" class="boton" onclick="return confirm('¿Eliminar usuario?')">🗑️ Borrar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

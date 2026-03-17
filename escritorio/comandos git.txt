@@ -1,0 +1,10 @@
+#para añadir del escritorio
+git add .
+git commit -m "cambio"
+git push
+
+#para añadir de Github
+git pull
+
+#para ver el estado
+git status
