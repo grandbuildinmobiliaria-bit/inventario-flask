@@ -20,6 +20,10 @@ def register_productos_routes(app):
         productos = []
 
         if request.method == "POST":
+            codigo_qr = request.form.get("codigo", "").strip()
+            if codigo_qr:
+                return redirect(url_for("producto", codigo=codigo_qr))
+
             familia = request.form.get("familia")
             tipo = request.form.get("tipo")
             productos = producto_model.buscar_productos_por_familia_tipo(familia, tipo)
