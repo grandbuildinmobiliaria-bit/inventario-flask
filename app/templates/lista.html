@@ -29,15 +29,29 @@
             <th>Nombre</th>
             <th>Stock</th>
             <th>Ubicación</th>
+            <th>Foto</th>
             <th>Acciones</th>
         </tr>
         {% for p in productos %}
         <tr>
             <td>{{ p['CODIGO'] }}</td>
             <td>{{ p['NOMBRE'] }}</td>
-            <td>{{ p['STOCK'] }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('editar_stock_producto', codigo=p['CODIGO']) }}" style="display:flex; gap:6px; align-items:center; justify-content:center;">
+                    <input type="number" name="stock" min="0" value="{{ p['STOCK'] }}" style="width:80px; margin:0;">
+                    <button type="submit" class="boton" style="background:#16a085;">💾</button>
+                </form>
+            </td>
             <td>{{ p['UBICACION'] }}</td>
             <td>
+                {% if p['foto_path'] %}
+                <img src="{{ url_for('static', filename=p['foto_path']) }}" alt="Foto" style="max-width:60px;border-radius:6px;">
+                {% else %}
+                -
+                {% endif %}
+            </td>
+            <td>
+                <a href="{{ url_for('ver_producto', codigo=p['CODIGO']) }}" class="boton" style="background:#3498db;">👁 Ver</a>
                 <a href="{{ url_for('borrar_producto', codigo=p['CODIGO']) }}" class="boton">🗑 Eliminar</a>
             </td>
         </tr>

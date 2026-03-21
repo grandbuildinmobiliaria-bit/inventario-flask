@@ -83,3 +83,22 @@ class GoogleDriveIntegration:
         )
 
         return estructura
+
+    def subir_texto_a_carpeta(self, folder_id: str, nombre_archivo: str, contenido: str) -> str:
+        """Sube un archivo de texto a una carpeta de Google Drive y retorna su id."""
+        service = self._build_service()
+        try:
+            from googleapiclient.http import MediaInMemoryUpload
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
+                "Faltan dependencias de Google Drive. Instala requirements.txt para usar esta integración."
+            ) from exc
+
+        media = MediaInMemoryUpload(
+            contenido.encode("utf-8"),
+            mimetype="text/plain",
+            resumable=False,
+        )
+        metadata = {"name": nombre_archivo, "parents": [folder_id]}
+        file = service.files().create(body=metadata, media_body=media, fields="id").execute()
+        return file["id"]

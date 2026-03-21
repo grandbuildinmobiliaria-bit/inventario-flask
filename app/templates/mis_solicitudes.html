@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis solicitudes</title>
+    <link rel="icon" href="{{ url_for('static', filename='mi_icono.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+<div class="page">
+    <h1>📜 Mis solicitudes</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Proyecto</th>
+                <th>Estado</th>
+                <th>Fecha solicitud</th>
+                <th>Última actualización</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in solicitudes %}
+            <tr>
+                <td>{{ s.codigo_producto }} - {{ s.nombre_producto }}</td>
+                <td>{{ s.cantidad }}</td>
+                <td>{{ s.proyecto_codigo or '-' }}</td>
+                <td>{{ s.estado }}</td>
+                <td>{{ s.fecha_solicitud }}</td>
+                <td>{{ s.fecha_estado }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6">No hay solicitudes registradas.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('home') }}" class="boton">🏠 Volver</a>
+</div>
+<script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+</body>
+</html>

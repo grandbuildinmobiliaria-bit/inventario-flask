@@ -90,6 +90,16 @@
     <!-- Opción búsqueda manual -->
     <div class="card">
         <form method="POST">
+            <label>Proyecto destino:</label>
+            <select name="proyecto_codigo" required>
+                <option value="">Seleccionar proyecto...</option>
+                {% for pr in proyectos %}
+                    <option value="{{ pr.codigo }}" {% if proyecto_codigo == pr.codigo %}selected{% endif %}>
+                        {{ pr.codigo }} - {{ pr.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+
             <label>Familia:</label>
             <select name="familia" required>
                 {% for f in familias %}
@@ -135,6 +145,7 @@
     </div>
 
     <div class="acciones">
+        <a href="{{ url_for('proyectos') }}">📁 Ir a proyectos</a>
         <a href="{{ url_for('resumen') }}">📋 Ver resumen</a>
     </div>
 

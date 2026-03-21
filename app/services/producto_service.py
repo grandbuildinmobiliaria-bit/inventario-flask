@@ -16,9 +16,9 @@ def generar_qr(codigo):
     return ruta_relativa
 
 
-def crear_producto_desde_form(familia, tipo, nombre, stock, ubicacion):
+def crear_producto_desde_form(familia, tipo, nombre, stock, ubicacion, foto_path=None):
     ultimo = producto_model.obtener_ultimo_correlativo(familia, tipo)
     codigo = f"{familia}-{tipo}-{(ultimo + 1):03d}"
     ruta_qr = generar_qr(codigo)
-    producto_model.crear_producto(codigo, nombre, stock, ubicacion, ruta_qr)
+    producto_model.crear_producto(codigo, nombre, stock, ubicacion, ruta_qr, foto_path=foto_path)
     return codigo

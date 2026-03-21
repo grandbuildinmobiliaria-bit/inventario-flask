@@ -65,6 +65,10 @@
       <div class="links">
         <a href="{{ url_for('nuevo_producto') }}" class="boton">➕ Añadir producto</a>
         <a href="{{ url_for('resumen') }}" class="boton">📋 Ver resumen</a>
+        <a href="{{ url_for('proyectos') }}" class="boton">📁 Proyectos</a>
+        {% if session['rol'] == 'operador' %}
+          <a href="{{ url_for('mis_solicitudes') }}" class="boton">📜 Mis solicitudes</a>
+        {% endif %}
         {% if session['rol'] == 'admin' %}
           <a href="{{ url_for('crear_producto') }}" class="boton">🆕 Crear producto</a>
           <a href="{{ url_for('lista_productos') }}" class="boton">📑 Lista productos</a>

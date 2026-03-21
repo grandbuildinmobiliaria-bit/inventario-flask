@@ -182,6 +182,9 @@ def register_proyectos_routes(app):
         if not seleccionados:
             flash("⚠️ No hay productos seleccionados", "warning")
             return redirect(url_for("resumen"))
+        if not session.get("proyecto_codigo"):
+            flash("⚠️ Debes seleccionar un proyecto antes de enviar solicitud", "warning")
+            return redirect(url_for("nuevo_producto"))
 
         try:
             enviar_solicitud(session["usuario"], seleccionados)
@@ -191,6 +194,16 @@ def register_proyectos_routes(app):
             flash(f"❌ Error al enviar solicitud: {str(e)}", "error")
 
         return redirect(url_for("resumen"))
+
+    @app.route("/mis_solicitudes")
+    @login_required
+    def mis_solicitudes():
+        if session.get("rol") != "operador":
+            flash("❌ Solo operadores pueden ver su historial", "error")
+            return redirect(url_for("home"))
+
+        data = inventario_model.obtener_historial_solicitudes_por_usuario(session["usuario"])
+        return render_template("mis_solicitudes.html", solicitudes=data)
 
     @app.route("/solicitudes")
     @login_required
