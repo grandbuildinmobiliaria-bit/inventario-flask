@@ -1,13 +1,119 @@
 from datetime import datetime
 
-from flask import session, render_template, redirect, url_for, flash
+from flask import session, render_template, redirect, url_for, flash, request
 
-from app.models import inventario_model
+from app.models import inventario_model, proyecto_model
+from app.integrations.google_drive import GoogleDriveIntegration
 from app.services.inventario_service import enviar_solicitud, aprobar_todas_solicitudes
 from app.utils.auth import login_required
 
 
 def register_proyectos_routes(app):
+    @app.route("/proyectos")
+    @login_required
+    def proyectos():
+        if session.get("rol") != "admin":
+            flash("❌ Solo admin puede ver proyectos", "error")
+            return redirect(url_for("home"))
+
+        proyectos_db = proyecto_model.obtener_proyectos()
+        return render_template("proyectos.html", proyectos=proyectos_db)
+
+    @app.route("/proyectos/crear", methods=["GET", "POST"])
+    @login_required
+    def crear_proyecto_drive():
+        if session.get("rol") != "admin":
+            flash("❌ Solo admin puede crear proyectos", "error")
+            return redirect(url_for("home"))
+
+        if request.method == "POST":
+            codigo = request.form.get("codigo", "").strip().upper()
+            nombre = request.form.get("nombre", "").strip()
+            cliente = request.form.get("cliente", "").strip()
+            estado = request.form.get("estado", "activo").strip() or "activo"
+
+            if not codigo or not nombre or not cliente:
+                flash("⚠️ Debes completar código, nombre y cliente", "warning")
+                return render_template("crear_proyecto.html")
+
+            try:
+                integration = GoogleDriveIntegration()
+                estructura = integration.crear_y_registrar_proyecto(
+                    codigo=codigo,
+                    nombre=nombre,
+                    cliente=cliente,
+                    estado=estado,
+                )
+                flash(
+                    f"✅ Proyecto {codigo} creado. Carpeta Drive: {estructura['root_folder_id']}",
+                    "success",
+                )
+                return redirect(url_for("proyectos"))
+            except Exception as e:
+                flash(f"❌ Error al crear proyecto en Drive: {str(e)}", "error")
+
+        return render_template("crear_proyecto.html")
+
+    @app.route("/proyectos/editar/<codigo>", methods=["GET", "POST"])
+    @login_required
+    def editar_proyecto_drive(codigo):
+        if session.get("rol") != "admin":
+            flash("❌ Solo admin puede editar proyectos", "error")
+            return redirect(url_for("home"))
+
+        proyecto_db = proyecto_model.obtener_proyecto_por_codigo(codigo)
+        if not proyecto_db:
+            flash(f"❌ Proyecto {codigo} no encontrado", "error")
+            return redirect(url_for("proyectos"))
+
+        if request.method == "POST":
+            nuevo_codigo = request.form.get("codigo", "").strip().upper()
+            nombre = request.form.get("nombre", "").strip()
+            cliente = request.form.get("cliente", "").strip()
+            estado = request.form.get("estado", "activo").strip() or "activo"
+
+            if not nuevo_codigo or not nombre or not cliente:
+                flash("⚠️ Debes completar código, nombre y cliente", "warning")
+                return render_template("editar_proyecto.html", proyecto=proyecto_db)
+
+            try:
+                proyecto_model.actualizar_proyecto(codigo, nuevo_codigo, nombre, cliente, estado)
+                flash(f"✅ Proyecto {nuevo_codigo} actualizado", "success")
+                return redirect(url_for("proyectos"))
+            except Exception as e:
+                flash(f"❌ Error al actualizar proyecto: {str(e)}", "error")
+
+        return render_template("editar_proyecto.html", proyecto=proyecto_db)
+
+    @app.route("/proyectos/eliminar/<codigo>", methods=["POST"])
+    @login_required
+    def eliminar_proyecto_drive(codigo):
+        if session.get("rol") != "admin":
+            flash("❌ Solo admin puede eliminar proyectos", "error")
+            return redirect(url_for("home"))
+
+        try:
+            proyecto_model.eliminar_proyecto_por_codigo(codigo)
+            flash(f"✅ Proyecto {codigo} eliminado", "success")
+        except Exception as e:
+            flash(f"❌ Error al eliminar proyecto: {str(e)}", "error")
+
+        return redirect(url_for("proyectos"))
+
+    @app.route("/proyectos/abrir/<codigo>")
+    @login_required
+    def abrir_proyecto_drive(codigo):
+        if session.get("rol") != "admin":
+            flash("❌ Solo admin puede abrir carpetas de proyecto", "error")
+            return redirect(url_for("home"))
+
+        folder_id = proyecto_model.obtener_drive_folder_id_por_codigo(codigo)
+        if not folder_id:
+            flash(f"❌ No se encontró carpeta Drive para {codigo}", "error")
+            return redirect(url_for("proyectos"))
+
+        return redirect(f"https://drive.google.com/drive/folders/{folder_id}")
+
     @app.route("/enviar_solicitud")
     @login_required
     def enviar_solicitud_route():
@@ -54,7 +160,12 @@ def register_proyectos_routes(app):
 
             aprobador = session.get("usuario")
             fecha = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-            return render_template("boleta.html", productos=solicitudes_db, aprobador=aprobador, fecha=fecha)
+            return render_template(
+                "boleta.html",
+                productos=solicitudes_db,
+                aprobador=aprobador,
+                fecha=fecha,
+            )
         except Exception as e:
             flash(f"❌ Error al aprobar solicitudes: {str(e)}", "error")
             return redirect(url_for("solicitudes"))

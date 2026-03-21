@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Proyectos</title>
+    <style>
+        body { font-family: "Segoe UI", Arial, sans-serif; background:#f4f6f8; margin:0; padding:20px; }
+        .card { background:#fff; max-width:1200px; margin:20px auto; border-radius:10px; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,.1); }
+        .top { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+        h1 { margin:0; color:#2c3e50; }
+        .boton { padding:8px 12px; border-radius:6px; text-decoration:none; font-weight:bold; color:#fff; background:#3498db; border:none; cursor:pointer; }
+        .boton:hover { background:#2980b9; }
+        .gris { background:#95a5a6; }
+        .gris:hover { background:#7f8c8d; }
+        .verde { background:#27ae60; }
+        .verde:hover { background:#1e8449; }
+        .rojo { background:#e74c3c; }
+        .rojo:hover { background:#c0392b; }
+        table { width:100%; border-collapse: collapse; background:#fff; }
+        th, td { padding:10px; border-bottom:1px solid #eee; text-align:left; font-size:14px; vertical-align:middle; }
+        th { background:#f8f9fa; }
+        .badge { padding:5px 8px; border-radius:12px; font-size:12px; font-weight:bold; }
+        .activo { background:#d5f5e3; color:#1e8449; }
+        .pausado { background:#fdebd0; color:#b9770e; }
+        .cerrado { background:#f5b7b1; color:#922b21; }
+        .mensaje { margin:10px 0; }
+        .error { color:#e74c3c; font-weight:bold; }
+        .success { color:#27ae60; font-weight:bold; }
+        .warning { color:#f39c12; font-weight:bold; }
+        .acciones { display:flex; gap:6px; flex-wrap:wrap; }
+        .inline { display:inline; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="top">
+            <h1>📂 Proyectos registrados</h1>
+            <div>
+                <a href="{{ url_for('crear_proyecto_drive') }}" class="boton">➕ Nuevo proyecto</a>
+                <a href="{{ url_for('home') }}" class="boton gris">🏠 Inicio</a>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mensaje">
+                    {% for category, message in messages %}
+                        <div class="{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Cliente</th>
+                    <th>Estado</th>
+                    <th>Drive Folder ID</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in proyectos %}
+                <tr>
+                    <td>{{ p.codigo }}</td>
+                    <td>{{ p.nombre }}</td>
+                    <td>{{ p.cliente }}</td>
+                    <td><span class="badge {{ p.estado }}">{{ p.estado }}</span></td>
+                    <td>{{ p.drive_folder_id }}</td>
+                    <td>
+                        <div class="acciones">
+                            <a href="{{ url_for('abrir_proyecto_drive', codigo=p.codigo) }}" class="boton verde" target="_blank">📂 Abrir Drive</a>
+                            <a href="{{ url_for('editar_proyecto_drive', codigo=p.codigo) }}" class="boton">✏️ Editar</a>
+                            <form method="POST" action="{{ url_for('eliminar_proyecto_drive', codigo=p.codigo) }}" class="inline" onsubmit="return confirm('¿Seguro que deseas eliminar este proyecto?')">
+                                <button type="submit" class="boton rojo">🗑️ Eliminar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6">No hay proyectos registrados todavía.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
