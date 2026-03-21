@@ -2,7 +2,10 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de productos</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
     <style>
         body { font-family:"Segoe UI", Arial, sans-serif; background:#f4f6f8; padding:20px; }
         table { width:100%; border-collapse:collapse; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
@@ -14,6 +17,10 @@
     </style>
 </head>
 <body>
+    <div class="page">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+      <button type="button" class="theme-toggle" data-theme-toggle></button>
+    </div>
     <h1>Lista de productos</h1>
     <table>
         <tr>
@@ -39,5 +46,7 @@
     <a href="{{ url_for('home') }}" 
        style="background:#3498db; color:#fff; padding:10px 16px; border-radius:6px; text-decoration:none; font-weight:bold;">
        🏠 Volver al inicio
+    </div>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 </html>
