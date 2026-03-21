@@ -124,7 +124,7 @@
 
         <label for="cameraSelect">Seleccionar cámara:</label>
         <select id="cameraSelect"></select>
-        <button id="activarScannerBtn" class="boton">📷 Activar escáner QR</button>
+        <button type="button" id="activarScannerBtn" class="boton">📷 Activar escáner QR</button>
         <p id="estadoScanner">Escáner apagado</p>
 
         <div id="reader"></div>
@@ -150,22 +150,29 @@
         let escaneado = false;
         const estadoScanner = document.getElementById("estadoScanner");
 
-        navigator.mediaDevices.enumerateDevices()
-        .then(devices => {
-            const videoDevices = devices.filter(d => d.kind === "videoinput");
-            const cameraSelect = document.getElementById("cameraSelect");
-            videoDevices.forEach((device, i) => {
-                const option = document.createElement("option");
-                option.value = device.deviceId;
-                option.text = device.label || `Cámara ${i+1}`;
-                cameraSelect.appendChild(option);
-            });
-            console.log("Cámaras listadas:", videoDevices.length);
-        })
-        .catch(err => {
-            console.error("Error al enumerar cámaras:", err);
-            estadoScanner.textContent = "❌ No se pudieron listar las cámaras";
-        });
+        async function cargarCamaras() {
+            try {
+                const cameraSelect = document.getElementById("cameraSelect");
+                cameraSelect.innerHTML = "";
+                const cameras = await Html5Qrcode.getCameras();
+                cameras.forEach((camera, i) => {
+                    const option = document.createElement("option");
+                    option.value = camera.id;
+                    option.text = camera.label || `Cámara ${i + 1}`;
+                    cameraSelect.appendChild(option);
+                });
+                if (cameras.length === 0) {
+                    estadoScanner.textContent = "⚠️ No se detectaron cámaras";
+                } else {
+                    estadoScanner.textContent = "Cámaras disponibles: " + cameras.length;
+                }
+            } catch (err) {
+                console.error("Error al obtener cámaras:", err);
+                estadoScanner.textContent = "❌ Debes permitir acceso a cámara (usa HTTPS en móvil)";
+            }
+        }
+
+        cargarCamaras();
 
         document.getElementById("activarScannerBtn").addEventListener("click", function() {
             const cameraId = document.getElementById("cameraSelect").value;
@@ -177,7 +184,9 @@
             }
 
             const config = { fps: 10, qrbox: 250 };
-            const constraints = { deviceId: { exact: cameraId } };
+            const constraints = cameraId
+                ? { deviceId: { exact: cameraId } }
+                : { facingMode: "environment" };
 
             html5QrcodeScanner.start(
                 constraints,

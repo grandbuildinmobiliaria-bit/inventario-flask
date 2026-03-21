@@ -45,6 +45,7 @@
             <h1>📂 Proyectos registrados</h1>
             <div>
                 <a href="{{ url_for('crear_proyecto_drive') }}" class="boton">➕ Nuevo proyecto</a>
+                <a href="{{ url_for('clientes_listado') }}" class="boton" style="background:#16a085;">🏢 Clientes</a>
                 <a href="{{ url_for('home') }}" class="boton" style="background:#95a5a6;">🏠 Inicio</a>
             </div>
         </div>
@@ -81,6 +82,7 @@
                     <td>
                         <div class="acciones">
                             <a href="{{ url_for('abrir_proyecto_drive', codigo=p.codigo) }}" class="accion-btn abrir">📂 Abrir Drive</a>
+                            <a href="{{ url_for('agregar_cliente_proyecto', codigo=p.codigo) }}" class="accion-btn abrir">👤 Añadir cliente</a>
                             <a href="{{ url_for('editar_proyecto', codigo=p.codigo) }}" class="accion-btn editar">✏️ Editar</a>
                             <form method="POST" action="{{ url_for('eliminar_proyecto', codigo=p.codigo) }}" onsubmit="return confirm('¿Eliminar el proyecto {{ p.codigo }}? Esta acción no se puede deshacer.');">
                                 <button type="submit" class="accion-btn eliminar">🗑️ Eliminar</button>

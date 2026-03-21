@@ -2,7 +2,7 @@ from datetime import datetime
 
 from flask import session, render_template, redirect, url_for, flash, request
 
-from app.models import inventario_model, proyecto_model
+from app.models import inventario_model, proyecto_model, contacto_model
 from app.integrations.google_drive import GoogleDriveIntegration
 from app.services.inventario_service import enviar_solicitud, aprobar_todas_solicitudes
 from app.utils.auth import login_required
@@ -128,6 +128,48 @@ def register_proyectos_routes(app):
 
         drive_url = f"https://drive.google.com/drive/folders/{proyecto['drive_folder_id']}"
         return redirect(drive_url)
+
+    @app.route("/proyectos/agregar-cliente/<codigo>", methods=["GET", "POST"])
+    @login_required
+    def agregar_cliente_proyecto(codigo):
+        if session.get("rol") != "admin":
+            flash("❌ Solo admin puede asociar clientes a proyectos", "error")
+            return redirect(url_for("home"))
+
+        proyecto = proyecto_model.obtener_proyecto_por_codigo(codigo)
+        if not proyecto:
+            flash(f"❌ No existe el proyecto {codigo}", "error")
+            return redirect(url_for("proyectos"))
+
+        clientes = contacto_model.obtener_clientes()
+        if request.method == "POST":
+            cliente_nombre = request.form.get("cliente", "").strip()
+            if not cliente_nombre:
+                flash("⚠️ Debes seleccionar un cliente", "warning")
+                return render_template(
+                    "asignar_cliente_proyecto.html",
+                    proyecto=proyecto,
+                    clientes=clientes,
+                )
+
+            actualizado = proyecto_model.actualizar_proyecto(
+                codigo=codigo,
+                nombre=proyecto["nombre"],
+                cliente=cliente_nombre,
+                drive_folder_id=proyecto["drive_folder_id"],
+                estado=proyecto["estado"],
+            )
+            if actualizado:
+                flash(f"✅ Cliente asignado al proyecto {codigo}", "success")
+            else:
+                flash(f"⚠️ No se pudo asignar cliente al proyecto {codigo}", "warning")
+            return redirect(url_for("proyectos"))
+
+        return render_template(
+            "asignar_cliente_proyecto.html",
+            proyecto=proyecto,
+            clientes=clientes,
+        )
 
     @app.route("/enviar_solicitud")
     @login_required
