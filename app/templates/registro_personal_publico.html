@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de personal</title>
+    <link rel="icon" href="{{ url_for('static', filename='mi_icono.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+    <style>
+        .card { background:#fff; max-width:760px; margin:20px auto; border-radius:10px; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,.08); }
+        .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        label { display:block; margin:8px 0 6px; font-weight:600; }
+        input, select, textarea { width:100%; padding:10px; border:1px solid #ccc; border-radius:6px; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="card">
+        <h1>📝 Registro de personal (sin login)</h1>
+        <p>Completa tus datos para ser considerado en la lista de personal.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" enctype="multipart/form-data">
+            <div class="row">
+                <div>
+                    <label>DNI *</label>
+                    <input type="text" name="dni" required>
+                </div>
+                <div>
+                    <label>Nombre completo *</label>
+                    <input type="text" name="nombre" required>
+                </div>
+                <div>
+                    <label>Teléfono *</label>
+                    <input type="text" name="telefono" required>
+                </div>
+                <div>
+                    <label>Correo *</label>
+                    <input type="email" name="correo" required>
+                </div>
+                <div>
+                    <label>Distrito de Lima *</label>
+                    <select name="distrito_lima" required>
+                        <option value="">Seleccionar...</option>
+                        {% for d in distritos %}
+                        <option value="{{ d }}">{{ d }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label>Cargo *</label>
+                    <input type="text" name="cargo" required>
+                </div>
+                <div>
+                    <label>Proyecto al que postula</label>
+                    <select name="proyecto_codigo">
+                        <option value="">Sin definir</option>
+                        {% for p in proyectos %}
+                        <option value="{{ p.codigo }}">{{ p.codigo }} - {{ p.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label>Salario esperado (S/)</label>
+                    <input type="number" min="0" step="0.01" name="salario_base" value="0">
+                </div>
+            </div>
+
+            <label>Observaciones técnicas</label>
+            <textarea name="observaciones_tecnicas" placeholder="Experiencia, certificaciones, maquinaria que opera, etc."></textarea>
+
+            <label>Foto *</label>
+            <input type="file" name="foto" accept=".png,.jpg,.jpeg,.webp" required>
+
+            <button type="submit" class="boton">✅ Enviar información</button>
+        </form>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+</body>
+</html>

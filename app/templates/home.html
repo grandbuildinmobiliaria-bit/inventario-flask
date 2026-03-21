@@ -89,12 +89,29 @@
         <a href="{{ url_for('proyectos') }}" class="boton">📂 Ver proyectos</a>
       </div>
     </article>
+
+    <article class="module">
+      <h3>👷 Personal</h3>
+      <div class="links">
+        <a href="{{ url_for('personal_listado') }}" class="boton">👷 Gestionar personal</a>
+        <a href="{{ url_for('personal_nuevo') }}" class="boton">➕ Registrar personal</a>
+      </div>
+    </article>
+
+    <article class="module">
+      <h3>🤝 Clientes y proveedores</h3>
+      <div class="links">
+        <a href="{{ url_for('clientes_listado') }}" class="boton">🏢 Clientes</a>
+        <a href="{{ url_for('proveedores_listado') }}" class="boton">🏭 Proveedores</a>
+      </div>
+    </article>
     {% endif %}
   </section>
 
   <section class="quick-links">
     <h3>🔗 Accesos directos</h3>
     <a href="https://grandbuildinmobiliaria.com" target="_blank" class="boton">🌐 Página Web</a>
+    <a href="{{ url_for('personal_registro_publico') }}" target="_blank" class="boton">📝 Formulario público personal</a>
     {% if session['rol'] == 'admin' %}
     <a href="https://md-70.webhostbox.net:2083/" target="_blank" class="boton">🛠️ cPanel</a>
     {% endif %}
