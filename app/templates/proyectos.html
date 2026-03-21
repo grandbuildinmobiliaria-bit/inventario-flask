@@ -25,6 +25,14 @@
         .error { color:#e74c3c; font-weight:bold; }
         .success { color:#27ae60; font-weight:bold; }
         .warning { color:#f39c12; font-weight:bold; }
+        .acciones { display:flex; gap:8px; flex-wrap:wrap; }
+        .accion-btn { padding:6px 10px; border-radius:6px; font-size:12px; text-decoration:none; border:none; cursor:pointer; font-weight:bold; color:#fff; display:inline-block; }
+        .abrir { background:#16a085; }
+        .abrir:hover { background:#13856e; }
+        .editar { background:#f39c12; }
+        .editar:hover { background:#d68910; }
+        .eliminar { background:#e74c3c; }
+        .eliminar:hover { background:#cb4335; }
     </style>
 </head>
 <body>
@@ -37,6 +45,7 @@
             <h1>📂 Proyectos registrados</h1>
             <div>
                 <a href="{{ url_for('crear_proyecto_drive') }}" class="boton">➕ Nuevo proyecto</a>
+                <a href="{{ url_for('clientes_listado') }}" class="boton" style="background:#16a085;">🏢 Clientes</a>
                 <a href="{{ url_for('home') }}" class="boton" style="background:#95a5a6;">🏠 Inicio</a>
             </div>
         </div>
@@ -59,6 +68,7 @@
                     <th>Cliente</th>
                     <th>Estado</th>
                     <th>Drive Folder ID</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -69,10 +79,20 @@
                     <td>{{ p.cliente }}</td>
                     <td><span class="badge {{ p.estado }}">{{ p.estado }}</span></td>
                     <td>{{ p.drive_folder_id }}</td>
+                    <td>
+                        <div class="acciones">
+                            <a href="{{ url_for('abrir_proyecto_drive', codigo=p.codigo) }}" class="accion-btn abrir">📂 Abrir Drive</a>
+                            <a href="{{ url_for('agregar_cliente_proyecto', codigo=p.codigo) }}" class="accion-btn abrir">👤 Añadir cliente</a>
+                            <a href="{{ url_for('editar_proyecto', codigo=p.codigo) }}" class="accion-btn editar">✏️ Editar</a>
+                            <form method="POST" action="{{ url_for('eliminar_proyecto', codigo=p.codigo) }}" onsubmit="return confirm('¿Eliminar el proyecto {{ p.codigo }}? Esta acción no se puede deshacer.');">
+                                <button type="submit" class="accion-btn eliminar">🗑️ Eliminar</button>
+                            </form>
+                        </div>
+                    </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="5">No hay proyectos registrados todavía.</td>
+                    <td colspan="6">No hay proyectos registrados todavía.</td>
                 </tr>
                 {% endfor %}
             </tbody>

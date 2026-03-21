@@ -88,6 +88,8 @@ input, select, textarea {
 
 table { width: 100%; border-collapse: collapse; }
 th, td { padding: 10px; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-soft) !important; color: var(--text) !important; }
+td { color: var(--text) !important; }
 
 @media (max-width: 768px) {
   .page { width: 94vw; }

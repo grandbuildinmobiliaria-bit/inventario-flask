@@ -118,6 +118,7 @@ tr:hover{
             <th>Código</th>
             <th>Producto</th>
             <th>Cantidad</th>
+            <th>Proyecto</th>
             <th>Ubicación</th>
             <th>Fecha</th>
             <th>Acción</th>
@@ -131,6 +132,7 @@ tr:hover{
             <td>{{ s['codigo_producto'] }}</td>
             <td>{{ s['nombre_producto'] }}</td>
             <td>{{ s['cantidad'] }}</td>
+            <td>{{ s['proyecto_codigo'] or '-' }}</td>
             <td>{{ s['ubicacion'] }}</td>
             <td>{{ s['fecha'] }}</td>
             <td>

@@ -73,6 +73,10 @@
       <button type="button" class="theme-toggle" data-theme-toggle></button>
     </div>
     <h1>📋 Productos seleccionados</h1>
+    <p style="text-align:center;">
+        <strong>Proyecto destino:</strong> {{ session.get('proyecto_codigo', 'No seleccionado') }}
+        | <a href="{{ url_for('proyectos') }}">📁 Ver proyectos</a>
+    </p>
 
     {% if productos %}
     <table>
@@ -103,6 +107,7 @@
     <div class="acciones">
     {% if session['rol'] == 'operador' %}
         <a href="{{ url_for('enviar_solicitud') }}" class="boton enviar">📤 Enviar solicitud al admin</a>
+        <a href="{{ url_for('mis_solicitudes') }}" class="boton">📜 Ver mis solicitudes</a>
     {% endif %}
     <a href="{{ url_for('home') }}" class="boton">🏠 Volver al inicio</a>
     </div>

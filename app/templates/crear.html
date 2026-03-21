@@ -39,7 +39,7 @@
           {% endif %}
         {% endwith %}
 
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             <label>Familia:</label>
             <select name="familia" required>
                 {% for f in familias %}
@@ -75,6 +75,9 @@
 
             <label>Usuario:</label>
             <input type="text" name="usuario">
+
+            <label>Foto del producto:</label>
+            <input type="file" name="foto" accept="image/*" capture="environment">
 
             <button type="submit" class="boton">➕ Crear producto con QR</button>
         </form>

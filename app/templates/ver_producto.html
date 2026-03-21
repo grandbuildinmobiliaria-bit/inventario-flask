@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver producto</title>
+    <link rel="icon" href="{{ url_for('static', filename='mi_icono.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+<div class="page">
+    <h1>👁 {{ producto['NOMBRE'] }}</h1>
+    <p><strong>Código:</strong> {{ producto['CODIGO'] }}</p>
+    <p><strong>Stock:</strong> {{ producto['STOCK'] }}</p>
+    <p><strong>Ubicación:</strong> {{ producto['UBICACION'] }}</p>
+
+    <div style="display:flex; gap:20px; flex-wrap:wrap;">
+        <div>
+            <h3>QR</h3>
+            <img src="{{ url_for('static', filename=producto['QR_PATH']) }}" alt="QR" style="max-width:200px;">
+        </div>
+        <div>
+            <h3>Foto</h3>
+            {% if producto['foto_path'] %}
+            <img src="{{ url_for('static', filename=producto['foto_path']) }}" alt="Foto" style="max-width:260px;border-radius:8px;">
+            {% else %}
+            <p>Sin foto registrada.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <a href="{{ url_for('lista_productos') }}" class="boton">⬅️ Volver</a>
+</div>
+<script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+</body>
+</html>
