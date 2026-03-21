@@ -2,7 +2,11 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Usuario</title>
+    <link rel="icon" href="{{ url_for('static', filename='mi_icono.ico') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
     <style>
         body { font-family:"Segoe UI",Arial,sans-serif; background:#f4f6f8; padding:20px; }
         .card { background:#fff; border-radius:8px; padding:20px; max-width:400px; margin:20px auto; box-shadow:0 2px 8px rgba(0,0,0,0.1);}
@@ -15,6 +19,10 @@
     </style>
 </head>
 <body>
+    <div class="page">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+      <button type="button" class="theme-toggle" data-theme-toggle></button>
+    </div>
     <div class="card">
         <h1>Crear Usuario</h1>
         <form method="POST">
@@ -34,5 +42,7 @@
         </form>
         <a href="{{ url_for('home') }}">🏠 Volver al inicio</a>
     </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 </html>

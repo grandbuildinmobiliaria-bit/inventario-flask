@@ -1,0 +1,101 @@
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --surface-soft: #eef2f7;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --border: #d1d5db;
+  --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f172a;
+  --surface: #111827;
+  --surface-soft: #1f2937;
+  --text: #f9fafb;
+  --muted: #cbd5e1;
+  --primary: #60a5fa;
+  --primary-hover: #93c5fd;
+  --success: #4ade80;
+  --danger: #f87171;
+  --border: #334155;
+  --shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+.page {
+  width: min(1200px, 94vw);
+  margin: 0 auto;
+  padding: 16px 0 28px;
+}
+
+.card, table, .container, .dashboard-card, .module, .top-panel {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  border-radius: 12px;
+}
+
+h1, h2, h3, h4, p, label, th, td, span, a, li { color: inherit; }
+
+a { color: var(--primary); }
+input, select, textarea, button {
+  font: inherit;
+}
+input, select, textarea {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.boton, .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  background: var(--primary);
+  color: #fff !important;
+  cursor: pointer;
+}
+.boton:hover, .btn:hover { background: var(--primary-hover); }
+
+.theme-toggle {
+  background: var(--surface-soft);
+  color: var(--text) !important;
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 999px;
+}
+
+.table-wrap { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px; border-bottom: 1px solid var(--border); }
+
+@media (max-width: 768px) {
+  .page { width: 94vw; }
+  .row, .top, .top-bar, .botones {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .row { display: grid !important; grid-template-columns: 1fr !important; }
+  h1 { font-size: 1.5rem; }
+  .boton, .btn { width: 100%; margin-top: 8px; }
+}

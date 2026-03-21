@@ -2,7 +2,11 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resumen de selección</title>
+    <link rel="icon" href="{{ url_for('static', filename='mi_icono.ico') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
     <style>
         body {
             font-family: "Segoe UI", Arial, sans-serif;
@@ -64,6 +68,10 @@
     </style>
 </head>
 <body>
+    <div class="page">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+      <button type="button" class="theme-toggle" data-theme-toggle></button>
+    </div>
     <h1>📋 Productos seleccionados</h1>
 
     {% if productos %}
@@ -103,5 +111,7 @@
     <p style="text-align:center; margin-top:30px;">No hay productos seleccionados todavía.</p>
     {% endif %}
 
+    </div>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 </html>

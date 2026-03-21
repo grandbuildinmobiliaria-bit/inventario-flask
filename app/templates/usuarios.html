@@ -2,7 +2,11 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Usuarios</title>
+    <link rel="icon" href="{{ url_for('static', filename='mi_icono.ico') }}">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
     <style>
         body { font-family:"Segoe UI", Arial, sans-serif; background:#f4f6f8; padding:40px; text-align:center; }
         table { width:80%; margin:20px auto; border-collapse: collapse; }
@@ -13,6 +17,10 @@
     </style>
 </head>
 <body>
+    <div class="page">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+      <button type="button" class="theme-toggle" data-theme-toggle></button>
+    </div>
     <h1>👥 Gestión de Usuarios</h1>
     <a href="{{ url_for('home') }}" class="boton">🏠 Volver al inicio</a>
     <a href="{{ url_for('crear_usuario') }}" class="boton">➕ Crear nuevo usuario</a>
@@ -36,5 +44,7 @@
         </tr>
         {% endfor %}
     </table>
+    </div>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 </html>

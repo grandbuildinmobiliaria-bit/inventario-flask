@@ -2,8 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Añadir producto</title>
+    <link rel="icon" href="{{ url_for('static', filename='mi_icono.ico') }}">
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
     <style>
         body {
             font-family: "Segoe UI", Arial, sans-serif;
@@ -77,6 +81,10 @@
     </style>
 </head>
 <body>
+    <div class="page">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+      <button type="button" class="theme-toggle" data-theme-toggle></button>
+    </div>
     <h1>Añadir producto al resumen</h1>
 
     <!-- Opción búsqueda manual -->
@@ -218,5 +226,7 @@
             });
 });
     </script>
+    </div>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 </html>
