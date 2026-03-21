@@ -6,6 +6,7 @@ from app.routes.productos import register_productos_routes
 from app.routes.inventario import register_inventario_routes
 from app.routes.proyectos import register_proyectos_routes
 from app.routes.personal import register_personal_routes
+from app.routes.contactos import register_contactos_routes
 
 
 def create_app():
@@ -18,5 +19,6 @@ def create_app():
     register_inventario_routes(app)
     register_proyectos_routes(app)
     register_personal_routes(app)
+    register_contactos_routes(app)
 
     return app

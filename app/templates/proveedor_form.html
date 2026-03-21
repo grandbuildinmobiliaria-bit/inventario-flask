@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if accion == 'editar' %}Editar{% else %}Nuevo{% endif %} proveedor</title>
+    <link rel="icon" href="{{ url_for('static', filename='mi_icono.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+    <style>
+        .card { background:#fff; max-width:820px; margin:20px auto; border-radius:12px; padding:20px; box-shadow:0 2px 10px rgba(0,0,0,.08); }
+        .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        label { display:block; margin:8px 0 6px; font-weight:600; }
+        input, textarea { width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="card">
+        <h1>{% if accion == 'editar' %}✏️ Editar{% else %}➕ Nuevo{% endif %} proveedor</h1>
+        <form method="POST">
+            <div class="row">
+                <div>
+                    <label>Nombre *</label>
+                    <input type="text" name="nombre" required value="{{ proveedor.nombre if proveedor else '' }}">
+                </div>
+                <div>
+                    <label>Teléfono *</label>
+                    <input type="text" name="telefono" required value="{{ proveedor.telefono if proveedor else '' }}">
+                </div>
+                <div>
+                    <label>Tipo de productos *</label>
+                    <input type="text" name="tipo_productos" required value="{{ proveedor.tipo_productos if proveedor else '' }}">
+                </div>
+                <div>
+                    <label>RUC *</label>
+                    <input type="text" name="ruc" required value="{{ proveedor.ruc if proveedor else '' }}">
+                </div>
+                <div>
+                    <label>Ubicación *</label>
+                    <input type="text" name="ubicacion" required value="{{ proveedor.ubicacion if proveedor else '' }}">
+                </div>
+                <div>
+                    <label>Correo</label>
+                    <input type="email" name="correo" value="{{ proveedor.correo if proveedor else '' }}">
+                </div>
+            </div>
+
+            <label>Observaciones</label>
+            <textarea name="observaciones">{{ proveedor.observaciones if proveedor else '' }}</textarea>
+
+            <button type="submit" class="boton">💾 Guardar</button>
+            <a href="{{ url_for('proveedores_listado') }}" class="boton" style="background:#95a5a6;">⬅️ Volver</a>
+        </form>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+</body>
+</html>

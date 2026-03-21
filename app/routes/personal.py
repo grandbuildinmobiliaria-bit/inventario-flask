@@ -48,6 +48,17 @@ def _parsear_persona_desde_form(form, foto_path=None):
     }
 
 
+def _whatsapp_link(numero):
+    if not numero:
+        return None
+    limpio = "".join(ch for ch in numero if ch.isdigit())
+    if not limpio:
+        return None
+    if not limpio.startswith("51"):
+        limpio = f"51{limpio}"
+    return f"https://wa.me/{limpio}"
+
+
 def register_personal_routes(app):
 
     @app.route("/personal")
@@ -57,8 +68,11 @@ def register_personal_routes(app):
             flash("❌ Solo admin puede gestionar personal", "error")
             return redirect(url_for("home"))
 
-        personal = personal_model.obtener_personal()
-        return render_template("personal.html", personal=personal)
+        busqueda = request.args.get("q", "").strip()
+        personal = personal_model.obtener_personal(busqueda=busqueda)
+        for p in personal:
+            p["whatsapp_url"] = _whatsapp_link(p.get("telefono"))
+        return render_template("personal.html", personal=personal, busqueda=busqueda)
 
     @app.route("/personal/nuevo", methods=["GET", "POST"])
     @login_required

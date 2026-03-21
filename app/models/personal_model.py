@@ -78,18 +78,31 @@ def inicializar_tablas_personal():
     conn.close()
 
 
-def obtener_personal():
+def obtener_personal(busqueda=None):
     inicializar_tablas_personal()
     conn = conectar()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute(
-        """
-        SELECT id, dni, telefono, distrito_lima, correo, nombre, cargo,
-               salario_base, observaciones_tecnicas, proyecto_codigo, foto_path
-        FROM personal
-        ORDER BY id DESC
-        """
-    )
+    if busqueda:
+        like_value = f"%{busqueda}%"
+        cursor.execute(
+            """
+            SELECT id, dni, telefono, distrito_lima, correo, nombre, cargo,
+                   salario_base, observaciones_tecnicas, proyecto_codigo, foto_path
+            FROM personal
+            WHERE nombre LIKE %s OR distrito_lima LIKE %s
+            ORDER BY id DESC
+            """,
+            (like_value, like_value),
+        )
+    else:
+        cursor.execute(
+            """
+            SELECT id, dni, telefono, distrito_lima, correo, nombre, cargo,
+                   salario_base, observaciones_tecnicas, proyecto_codigo, foto_path
+            FROM personal
+            ORDER BY id DESC
+            """
+        )
     data = cursor.fetchall()
     cursor.close()
     conn.close()

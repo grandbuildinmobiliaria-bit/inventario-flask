@@ -34,6 +34,11 @@
                 <a href="{{ url_for('home') }}" class="boton" style="background:#95a5a6;">🏠 Inicio</a>
             </div>
         </div>
+        <form method="GET" style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+            <input type="text" name="q" value="{{ busqueda or '' }}" placeholder="Buscar por nombre o ubicación (distrito)">
+            <button type="submit" class="boton">🔎 Buscar</button>
+            <a href="{{ url_for('personal_listado') }}" class="boton" style="background:#95a5a6;">Limpiar</a>
+        </form>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -49,6 +54,7 @@
                     <th>Foto</th>
                     <th>Nombre</th>
                     <th>DNI</th>
+                    <th>Ubicación</th>
                     <th>Cargo</th>
                     <th>Proyecto</th>
                     <th>Salario Base</th>
@@ -67,11 +73,15 @@
                     </td>
                     <td>{{ p.nombre }}</td>
                     <td>{{ p.dni }}</td>
+                    <td>{{ p.distrito_lima }}</td>
                     <td>{{ p.cargo }}</td>
                     <td>{{ p.proyecto_codigo or 'Sin proyecto' }}</td>
                     <td>S/ {{ '%.2f'|format(p.salario_base or 0) }}</td>
                     <td>
                         <div class="acciones">
+                            {% if p.whatsapp_url %}
+                            <a class="accion-btn asistencia" target="_blank" href="{{ p.whatsapp_url }}">💬 WhatsApp</a>
+                            {% endif %}
                             <a class="accion-btn editar" href="{{ url_for('personal_editar', personal_id=p.id) }}">✏️ Editar</a>
                             <a class="accion-btn asistencia" href="{{ url_for('personal_asistencia', personal_id=p.id) }}">📅 Asistencia</a>
                             <a class="accion-btn salarios" href="{{ url_for('personal_salarios', personal_id=p.id) }}">💵 Salarios</a>
@@ -82,7 +92,7 @@
                     </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="7">No hay personal registrado.</td></tr>
+                <tr><td colspan="8">No hay personal registrado.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
