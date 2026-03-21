@@ -57,3 +57,52 @@ def obtener_proyectos():
     cursor.close()
     conn.close()
     return data
+
+
+def obtener_proyecto_por_codigo(codigo):
+    """Obtiene un proyecto específico por su código."""
+    conn = conectar()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(
+        """
+        SELECT codigo, nombre, cliente, drive_folder_id, estado
+        FROM proyectos
+        WHERE codigo=%s
+        """,
+        (codigo,),
+    )
+    data = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return data
+
+
+def actualizar_proyecto(codigo, nombre, cliente, drive_folder_id, estado):
+    """Actualiza metadata del proyecto por código."""
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        UPDATE proyectos
+        SET nombre=%s, cliente=%s, drive_folder_id=%s, estado=%s
+        WHERE codigo=%s
+        """,
+        (nombre, cliente, drive_folder_id, estado, codigo),
+    )
+    conn.commit()
+    rows = cursor.rowcount
+    cursor.close()
+    conn.close()
+    return rows > 0
+
+
+def eliminar_proyecto_por_codigo(codigo):
+    """Elimina proyecto por código."""
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM proyectos WHERE codigo=%s", (codigo,))
+    conn.commit()
+    rows = cursor.rowcount
+    cursor.close()
+    conn.close()
+    return rows > 0
