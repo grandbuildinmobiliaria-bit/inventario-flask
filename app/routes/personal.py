@@ -1,11 +1,14 @@
 import os
+import unicodedata
 from datetime import datetime
+from decimal import Decimal
 from uuid import uuid4
 
-from flask import render_template, request, redirect, url_for, flash, session, current_app
+from flask import jsonify, render_template, request, redirect, url_for, flash, session, current_app
 from werkzeug.utils import secure_filename
 
 from app.models import personal_model
+from app.models.distritos_lima import DISTRITOS_LIMA
 from app.utils.auth import login_required
 
 
@@ -59,7 +62,67 @@ def _whatsapp_link(numero):
     return f"https://wa.me/{limpio}"
 
 
+def _normalizar_distrito(valor):
+    texto = (valor or "").strip().lower()
+    texto = unicodedata.normalize("NFKD", texto)
+    return "".join(ch for ch in texto if not unicodedata.combining(ch))
+
+
+def _coordenadas_distrito(distrito):
+    distritos_normalizados = {
+        _normalizar_distrito(nombre): coordenadas
+        for nombre, coordenadas in DISTRITOS_LIMA.items()
+    }
+    return distritos_normalizados.get(_normalizar_distrito(distrito))
+
+
+def _serializar_salario(valor):
+    if isinstance(valor, Decimal):
+        return float(valor)
+    return valor
+
+
 def register_personal_routes(app):
+
+
+    @app.route("/mapa")
+    @login_required
+    def mapa_trabajadores():
+        if session.get("rol") != "admin":
+            flash("❌ Solo admin puede ver el mapa de trabajadores", "error")
+            return redirect(url_for("home"))
+        return render_template("mapa.html")
+
+    @app.route("/api/trabajadores/mapa")
+    @login_required
+    def api_trabajadores_mapa():
+        if session.get("rol") != "admin":
+            return jsonify({"error": "No autorizado"}), 403
+
+        trabajadores = []
+        for persona in personal_model.obtener_personal_para_mapa():
+            coordenadas = _coordenadas_distrito(persona.get("distrito_lima"))
+            if not coordenadas:
+                continue
+
+            foto_path = persona.get("foto_path")
+            trabajadores.append(
+                {
+                    "id": persona.get("id"),
+                    "nombre": persona.get("nombre"),
+                    "distrito": persona.get("distrito_lima"),
+                    "puesto": persona.get("cargo"),
+                    "edad": None,
+                    "salario": _serializar_salario(persona.get("salario_base")),
+                    "contacto": persona.get("telefono"),
+                    "lat": coordenadas[0],
+                    "lng": coordenadas[1],
+                    "foto_url": url_for("static", filename=foto_path) if foto_path else None,
+                    "editar_url": url_for("personal_editar", personal_id=persona.get("id")),
+                }
+            )
+
+        return jsonify(trabajadores)
 
     @app.route("/personal")
     @login_required
