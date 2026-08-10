@@ -68,13 +68,24 @@
                 <input type="text" name="drive_folder_id" value="{{ proyecto.drive_folder_id }}" required>
             </div>
 
-            <div class="campo">
-                <label>Estado</label>
-                <select name="estado">
-                    <option value="activo" {% if proyecto.estado == 'activo' %}selected{% endif %}>activo</option>
-                    <option value="pausado" {% if proyecto.estado == 'pausado' %}selected{% endif %}>pausado</option>
-                    <option value="cerrado" {% if proyecto.estado == 'cerrado' %}selected{% endif %}>cerrado</option>
-                </select>
+            <div class="row">
+                <div class="campo">
+                    <label>Distrito del proyecto</label>
+                    <select name="distrito_lima">
+                        <option value="">Sin ubicación todavía</option>
+                        {% for d in distritos %}
+                            <option value="{{ d }}" {% if proyecto.distrito_lima == d %}selected{% endif %}>{{ d }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="campo">
+                    <label>Estado</label>
+                    <select name="estado">
+                        <option value="activo" {% if proyecto.estado == 'activo' %}selected{% endif %}>activo</option>
+                        <option value="pausado" {% if proyecto.estado == 'pausado' %}selected{% endif %}>pausado</option>
+                        <option value="cerrado" {% if proyecto.estado == 'cerrado' %}selected{% endif %}>cerrado</option>
+                    </select>
+                </div>
             </div>
 
             <div class="botones">

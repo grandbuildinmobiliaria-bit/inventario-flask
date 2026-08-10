@@ -70,7 +70,9 @@ class GoogleDriveIntegration:
 
         return {"root_folder_id": root_folder_id, "subfolders": subfolders}
 
-    def crear_y_registrar_proyecto(self, codigo: str, nombre: str, cliente: str, estado: str = "activo"):
+    def crear_y_registrar_proyecto(
+        self, codigo: str, nombre: str, cliente: str, estado: str = "activo", distrito_lima=None
+    ):
         """Crea carpetas en Drive y guarda drive_folder_id en la tabla proyectos."""
         estructura = self.crear_estructura_proyecto(codigo=codigo, nombre=nombre, cliente=cliente)
 
@@ -80,6 +82,7 @@ class GoogleDriveIntegration:
             cliente=cliente,
             drive_folder_id=estructura["root_folder_id"],
             estado=estado,
+            distrito_lima=distrito_lima,
         )
 
         return estructura
