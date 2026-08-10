@@ -1,16 +1,8 @@
 from app.database.connection import conectar
+from app.models.distritos_lima import DISTRITOS_LIMA_NOMBRES
 
 
-DISTRITOS_LIMA = [
-    "Ancón", "Ate", "Barranco", "Breña", "Carabayllo", "Chaclacayo", "Chorrillos",
-    "Cieneguilla", "Comas", "El Agustino", "Independencia", "Jesús María", "La Molina",
-    "La Victoria", "Lima", "Lince", "Los Olivos", "Lurigancho", "Lurín",
-    "Magdalena del Mar", "Miraflores", "Pachacámac", "Pucusana", "Pueblo Libre",
-    "Puente Piedra", "Punta Hermosa", "Punta Negra", "Rímac", "San Bartolo",
-    "San Borja", "San Isidro", "San Juan de Lurigancho", "San Juan de Miraflores",
-    "San Luis", "San Martín de Porres", "San Miguel", "Santa Anita", "Santa María del Mar",
-    "Santa Rosa", "Santiago de Surco", "Surquillo", "Villa El Salvador", "Villa María del Triunfo",
-]
+DISTRITOS_LIMA = DISTRITOS_LIMA_NOMBRES
 
 
 def inicializar_tablas_personal():
@@ -103,6 +95,24 @@ def obtener_personal(busqueda=None):
             ORDER BY id DESC
             """
         )
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return data
+
+
+def obtener_personal_para_mapa():
+    """Devuelve personal con los campos necesarios para ubicarlo en el mapa."""
+    inicializar_tablas_personal()
+    conn = conectar()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(
+        """
+        SELECT id, telefono, distrito_lima, nombre, cargo, salario_base, foto_path
+        FROM personal
+        ORDER BY nombre ASC
+        """
+    )
     data = cursor.fetchall()
     cursor.close()
     conn.close()
