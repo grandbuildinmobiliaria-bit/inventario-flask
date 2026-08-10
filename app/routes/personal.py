@@ -7,7 +7,7 @@ from uuid import uuid4
 from flask import jsonify, render_template, request, redirect, url_for, flash, session, current_app
 from werkzeug.utils import secure_filename
 
-from app.models import personal_model, proyecto_model
+from app.models import personal_model
 from app.models.distritos_lima import DISTRITOS_LIMA
 from app.utils.auth import login_required
 
@@ -115,7 +115,6 @@ def register_personal_routes(app):
                     "edad": None,
                     "salario": _serializar_salario(persona.get("salario_base")),
                     "contacto": persona.get("telefono"),
-                    "whatsapp_url": _whatsapp_link(persona.get("telefono")),
                     "lat": coordenadas[0],
                     "lng": coordenadas[1],
                     "foto_url": url_for("static", filename=foto_path) if foto_path else None,
@@ -124,34 +123,6 @@ def register_personal_routes(app):
             )
 
         return jsonify(trabajadores)
-
-
-    @app.route("/api/proyectos/mapa")
-    @login_required
-    def api_proyectos_mapa():
-        if session.get("rol") != "admin":
-            return jsonify({"error": "No autorizado"}), 403
-
-        proyectos = []
-        for proyecto in proyecto_model.obtener_proyectos_para_mapa():
-            coordenadas = _coordenadas_distrito(proyecto.get("distrito_lima"))
-            if not coordenadas:
-                continue
-
-            proyectos.append(
-                {
-                    "codigo": proyecto.get("codigo"),
-                    "nombre": proyecto.get("nombre"),
-                    "cliente": proyecto.get("cliente"),
-                    "distrito": proyecto.get("distrito_lima"),
-                    "estado": proyecto.get("estado"),
-                    "lat": coordenadas[0],
-                    "lng": coordenadas[1],
-                    "editar_url": url_for("editar_proyecto", codigo=proyecto.get("codigo")),
-                }
-            )
-
-        return jsonify(proyectos)
 
     @app.route("/personal")
     @login_required

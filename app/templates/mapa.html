@@ -6,10 +6,10 @@
     <title>Mapa de trabajadores</title>
     <link rel="icon" href="{{ url_for('static', filename='mi_icono.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQqnhgqSMRb0qYEWfSsjhncIIhNh6k=" crossorigin="">
     <style>
         .map-layout { display:grid; grid-template-columns: minmax(0, 1fr) 360px; gap:14px; }
-        #map { height:650px; min-height:650px; width:100%; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow); overflow:hidden; z-index:1; }
+        #map { min-height: 650px; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow); }
         .panel { padding:16px; max-height:650px; overflow:auto; }
         .top { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
         .hint { color:var(--muted); margin-top:0; }
@@ -18,18 +18,9 @@
         .worker-card p { margin:4px 0; font-size:14px; }
         .distance { font-weight:700; color:var(--primary); }
         .popup-photo { width:82px; height:82px; object-fit:cover; border-radius:10px; display:block; margin-bottom:8px; }
-        .popup-actions, .worker-actions { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
-        .popup-actions a, .worker-actions a { color:#fff !important; text-decoration:none; background:var(--primary); padding:6px 8px; border-radius:8px; font-weight:600; }
-        .popup-actions .whatsapp, .worker-actions .whatsapp { background:#16a34a; }
-        .project-pin { align-items:center; background:#f97316; border:2px solid #fff; border-radius:999px; box-shadow:0 2px 8px rgba(0,0,0,.35); color:#fff; display:flex; font-size:13px; height:28px; justify-content:center; width:28px; }
-        .legend { display:flex; gap:12px; flex-wrap:wrap; margin:8px 0 12px; }
-        .legend span { align-items:center; display:inline-flex; gap:6px; font-size:13px; }
-        .dot { border-radius:999px; display:inline-block; height:12px; width:12px; }
-        .dot-worker { background:#2563eb; }
-        .dot-project { background:#f97316; }
-        .leaflet-tile { max-width:none !important; max-height:none !important; }
-        .leaflet-marker-icon { max-width:none !important; }
-        @media (max-width: 900px) { .map-layout { grid-template-columns:1fr; } #map { height:420px; min-height:420px; } .panel { max-height:none; } }
+        .popup-actions { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+        .popup-actions a { color:#fff !important; text-decoration:none; background:var(--primary); padding:6px 8px; border-radius:8px; font-weight:600; }
+        @media (max-width: 900px) { .map-layout { grid-template-columns:1fr; } #map { min-height:420px; } .panel { max-height:none; } }
     </style>
 </head>
 <body>
@@ -49,43 +40,25 @@
         <div id="map"></div>
         <aside class="card panel">
             <h2>Trabajadores cercanos</h2>
-            <p id="summary" class="hint">Selecciona un punto en el mapa o un proyecto activo para calcular distancias.</p>
-            <div class="legend"><span><i class="dot dot-worker"></i>Trabajador</span><span><i class="dot dot-project"></i>Proyecto</span></div>
+            <p id="summary" class="hint">Selecciona un punto en el mapa para calcular distancias.</p>
             <div id="worker-list"></div>
         </aside>
     </section>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 <script>
-let map;
+const map = L.map('map').setView([-12.0464, -77.0428], 11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
 let referenceMarker = null;
 let trabajadores = [];
-let proyectos = [];
 const workerList = document.getElementById('worker-list');
 const summary = document.getElementById('summary');
-const limaCenter = [-12.0464, -77.0428];
-const limaBounds = [[-12.55, -77.25], [-11.65, -76.65]];
-
-window.addEventListener('load', () => {
-    map = L.map('map').setView(limaCenter, 11);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    setTimeout(() => {
-        map.invalidateSize(true);
-        map.setView(limaCenter, 11);
-        map.setMaxBounds(limaBounds);
-        map.options.maxBoundsViscosity = 0.8;
-    }, 250);
-
-    cargarTrabajadores();
-    cargarProyectos();
-    configurarClicMapa();
-});
 
 function haversineKm(lat1, lng1, lat2, lng2) {
     const radioTierraKm = 6371;
@@ -103,12 +76,7 @@ function formatSalario(salario) {
     return `S/ ${monto.toFixed(2)}`;
 }
 
-function accionesTrabajador(t) {
-    const whatsapp = t.whatsapp_url ? `<a class="whatsapp" href="${t.whatsapp_url}" target="_blank" rel="noopener">WhatsApp</a>` : '';
-    return `<div class="popup-actions">${whatsapp}<a href="${t.editar_url}">Añadir a proyecto</a></div>`;
-}
-
-function popupTrabajadorHtml(t) {
+function popupHtml(t) {
     const foto = t.foto_url ? `<img class="popup-photo" src="${t.foto_url}" alt="Foto de ${t.nombre}">` : '';
     return `
         <div>
@@ -118,29 +86,14 @@ function popupTrabajadorHtml(t) {
             <span>📍 ${t.distrito}</span><br>
             <span>📞 ${t.contacto || 'Sin teléfono'}</span><br>
             <span>💵 ${formatSalario(t.salario)}</span>
-            ${accionesTrabajador(t)}
-        </div>`;
-}
-
-function popupProyectoHtml(p) {
-    return `
-        <div>
-            <strong>🏗️ ${p.nombre}</strong><br>
-            <span>Código: ${p.codigo}</span><br>
-            <span>Cliente: ${p.cliente || 'Sin cliente'}</span><br>
-            <span>📍 ${p.distrito}</span><br>
-            <span>Estado: ${p.estado}</span>
             <div class="popup-actions">
-                <a href="#" onclick="usarProyectoReferencia('${p.codigo}'); return false;">Usar como referencia</a>
-                <a href="${p.editar_url}">Editar ubicación</a>
+                <a href="${t.editar_url}">Añadir a proyecto</a>
             </div>
         </div>`;
 }
 
 function renderList(items) {
-    workerList.innerHTML = items.map(t => {
-        const whatsapp = t.whatsapp_url ? `<a class="whatsapp" href="${t.whatsapp_url}" target="_blank" rel="noopener">WhatsApp</a>` : '';
-        return `
+    workerList.innerHTML = items.map(t => `
         <article class="worker-card">
             <h3>${t.nombre}</h3>
             <p class="distance">${t.distanciaKm.toFixed(2)} km</p>
@@ -149,94 +102,39 @@ function renderList(items) {
             <p>🎂 Edad: ${t.edad ?? 'No registrada'}</p>
             <p>💵 ${formatSalario(t.salario)}</p>
             <p>📞 ${t.contacto || 'Sin contacto'}</p>
-            <div class="worker-actions">${whatsapp}<a href="${t.editar_url}">Añadir a proyecto</a></div>
-        </article>`;
-    }).join('') || '<p>No hay trabajadores con distrito reconocido.</p>';
+        </article>`).join('') || '<p>No hay trabajadores con distrito reconocido.</p>';
 }
 
-function cargarTrabajadores() {
-    fetch('{{ url_for('api_trabajadores_mapa') }}')
-        .then(response => {
-            if (!response.ok) throw new Error('No se pudo cargar el personal del mapa');
-            return response.json();
-        })
-        .then(data => {
-            trabajadores = data;
-            trabajadores.forEach(t => {
-                L.circleMarker([t.lat, t.lng], {
-                    radius: 7,
-                    color: '#ffffff',
-                    weight: 2,
-                    fillColor: '#2563eb',
-                    fillOpacity: 0.9
-                }).addTo(map).bindPopup(popupTrabajadorHtml(t));
-            });
-            actualizarResumen();
-        })
-        .catch(error => {
-            summary.textContent = error.message;
-        });
-}
+fetch('{{ url_for('api_trabajadores_mapa') }}')
+    .then(response => {
+        if (!response.ok) throw new Error('No se pudo cargar el personal del mapa');
+        return response.json();
+    })
+    .then(data => {
+        trabajadores = data;
+        trabajadores.forEach(t => L.marker([t.lat, t.lng]).addTo(map).bindPopup(popupHtml(t)));
+        summary.textContent = `${trabajadores.length} trabajadores ubicados por distrito. Haz clic en el mapa para ordenar por distancia.`;
+    })
+    .catch(error => {
+        summary.textContent = error.message;
+    });
 
-function cargarProyectos() {
-    fetch('{{ url_for('api_proyectos_mapa') }}')
-        .then(response => {
-            if (!response.ok) throw new Error('No se pudo cargar los proyectos del mapa');
-            return response.json();
-        })
-        .then(data => {
-            proyectos = data;
-            const projectIcon = L.divIcon({
-                className: '',
-                html: '<div class="project-pin">🏗️</div>',
-                iconSize: [28, 28],
-                iconAnchor: [14, 14],
-                popupAnchor: [0, -14]
-            });
-            proyectos.forEach(p => {
-                L.marker([p.lat, p.lng], { icon: projectIcon })
-                    .addTo(map)
-                    .bindPopup(popupProyectoHtml(p));
-            });
-            actualizarResumen();
-        })
-        .catch(error => {
-            summary.textContent = error.message;
-        });
-}
-
-function actualizarResumen() {
-    summary.textContent = `${trabajadores.length} trabajadores y ${proyectos.length} proyectos ubicados. Haz clic en el mapa o en un proyecto para ordenar por cercanía.`;
-}
-
-function ordenarDesde(lat, lng, etiqueta) {
+map.on('click', event => {
+    const { lat, lng } = event.latlng;
     if (referenceMarker) {
-        referenceMarker.setLatLng([lat, lng]);
+        referenceMarker.setLatLng(event.latlng);
     } else {
-        referenceMarker = L.circleMarker([lat, lng], { radius: 9, color: '#dc2626', weight: 3, fillColor: '#fef2f2', fillOpacity: 0.9 }).addTo(map);
+        referenceMarker = L.marker(event.latlng).addTo(map);
     }
-    referenceMarker.bindPopup(etiqueta).openPopup();
+    referenceMarker.bindPopup('Punto de referencia').openPopup();
 
     const ordenados = trabajadores
         .map(t => ({ ...t, distanciaKm: haversineKm(lat, lng, t.lat, t.lng) }))
         .sort((a, b) => a.distanciaKm - b.distanciaKm);
 
-    summary.textContent = `Distancias calculadas desde ${etiqueta}.`;
+    summary.textContent = `Distancias calculadas desde ${lat.toFixed(5)}, ${lng.toFixed(5)}.`;
     renderList(ordenados);
-}
-
-function usarProyectoReferencia(codigo) {
-    const proyecto = proyectos.find(p => p.codigo === codigo);
-    if (!proyecto) return;
-    ordenarDesde(proyecto.lat, proyecto.lng, `proyecto ${proyecto.codigo} - ${proyecto.nombre}`);
-}
-
-function configurarClicMapa() {
-    map.on('click', event => {
-        const { lat, lng } = event.latlng;
-        ordenarDesde(lat, lng, `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
-    });
-}
+});
 </script>
 </body>
 </html>
