@@ -2,7 +2,7 @@ from datetime import datetime
 
 from flask import session, render_template, redirect, url_for, flash, request
 
-from app.models import inventario_model, proyecto_model, contacto_model
+from app.models import inventario_model, proyecto_model, contacto_model, personal_model
 from app.integrations.google_drive import GoogleDriveIntegration
 from app.services.inventario_service import enviar_solicitud, aprobar_todas_solicitudes
 from app.utils.auth import login_required
@@ -33,10 +33,11 @@ def register_proyectos_routes(app):
             nombre = request.form.get("nombre", "").strip()
             cliente = request.form.get("cliente", "").strip()
             estado = request.form.get("estado", "activo").strip() or "activo"
+            distrito_lima = request.form.get("distrito_lima", "").strip() or None
 
             if not codigo or not nombre or not cliente:
                 flash("⚠️ Debes completar código, nombre y cliente", "warning")
-                return render_template("crear_proyecto.html")
+                return render_template("crear_proyecto.html", distritos=personal_model.DISTRITOS_LIMA)
 
             try:
                 integration = GoogleDriveIntegration()
@@ -45,6 +46,7 @@ def register_proyectos_routes(app):
                     nombre=nombre,
                     cliente=cliente,
                     estado=estado,
+                    distrito_lima=distrito_lima,
                 )
                 flash(
                     f"✅ Proyecto {codigo} creado. Carpeta Drive: {estructura['root_folder_id']}",
@@ -54,7 +56,7 @@ def register_proyectos_routes(app):
             except Exception as e:
                 flash(f"❌ Error al crear proyecto en Drive: {str(e)}", "error")
 
-        return render_template("crear_proyecto.html")
+        return render_template("crear_proyecto.html", distritos=personal_model.DISTRITOS_LIMA)
 
     @app.route("/proyectos/editar/<codigo>", methods=["GET", "POST"])
     @login_required
@@ -73,6 +75,7 @@ def register_proyectos_routes(app):
             cliente = request.form.get("cliente", "").strip()
             drive_folder_id = request.form.get("drive_folder_id", "").strip()
             estado = request.form.get("estado", "activo").strip() or "activo"
+            distrito_lima = request.form.get("distrito_lima", "").strip() or None
 
             if not nombre or not cliente or not drive_folder_id:
                 flash("⚠️ Debes completar nombre, cliente y drive_folder_id", "warning")
@@ -82,8 +85,9 @@ def register_proyectos_routes(app):
                     "cliente": cliente,
                     "drive_folder_id": drive_folder_id,
                     "estado": estado,
+                    "distrito_lima": distrito_lima,
                 }
-                return render_template("editar_proyecto.html", proyecto=proyecto)
+                return render_template("editar_proyecto.html", proyecto=proyecto, distritos=personal_model.DISTRITOS_LIMA)
 
             actualizado = proyecto_model.actualizar_proyecto(
                 codigo=codigo,
@@ -91,6 +95,7 @@ def register_proyectos_routes(app):
                 cliente=cliente,
                 drive_folder_id=drive_folder_id,
                 estado=estado,
+                distrito_lima=distrito_lima,
             )
             if actualizado:
                 flash(f"✅ Proyecto {codigo} actualizado correctamente", "success")
@@ -98,7 +103,7 @@ def register_proyectos_routes(app):
                 flash(f"⚠️ No se pudo actualizar el proyecto {codigo}", "warning")
             return redirect(url_for("proyectos"))
 
-        return render_template("editar_proyecto.html", proyecto=proyecto)
+        return render_template("editar_proyecto.html", proyecto=proyecto, distritos=personal_model.DISTRITOS_LIMA)
 
     @app.route("/proyectos/eliminar/<codigo>", methods=["POST"])
     @login_required
@@ -158,6 +163,7 @@ def register_proyectos_routes(app):
                 cliente=cliente_nombre,
                 drive_folder_id=proyecto["drive_folder_id"],
                 estado=proyecto["estado"],
+                distrito_lima=proyecto.get("distrito_lima"),
             )
             if actualizado:
                 flash(f"✅ Cliente asignado al proyecto {codigo}", "success")

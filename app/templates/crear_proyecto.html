@@ -63,13 +63,24 @@
                 <input type="text" name="nombre" placeholder="Edificio Torre Norte" required>
             </div>
 
-            <div class="campo">
-                <label>Estado inicial</label>
-                <select name="estado">
-                    <option value="activo" selected>activo</option>
-                    <option value="pausado">pausado</option>
-                    <option value="cerrado">cerrado</option>
-                </select>
+            <div class="row">
+                <div class="campo">
+                    <label>Distrito del proyecto</label>
+                    <select name="distrito_lima">
+                        <option value="">Sin ubicación todavía</option>
+                        {% for d in distritos %}
+                            <option value="{{ d }}">{{ d }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="campo">
+                    <label>Estado inicial</label>
+                    <select name="estado">
+                        <option value="activo" selected>activo</option>
+                        <option value="pausado">pausado</option>
+                        <option value="cerrado">cerrado</option>
+                    </select>
+                </div>
             </div>
 
             <div class="botones">
