@@ -6,10 +6,10 @@
     <title>Mapa de trabajadores</title>
     <link rel="icon" href="{{ url_for('static', filename='mi_icono.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQqnhgqSMRb0qYEWfSsjhncIIhNh6k=" crossorigin="">
     <style>
         .map-layout { display:grid; grid-template-columns: minmax(0, 1fr) 360px; gap:14px; }
-        #map { height:650px; min-height:650px; width:100%; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow); overflow:hidden; z-index:1; }
+        #map { min-height: 650px; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow); }
         .panel { padding:16px; max-height:650px; overflow:auto; }
         .top { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
         .hint { color:var(--muted); margin-top:0; }
@@ -20,7 +20,7 @@
         .popup-photo { width:82px; height:82px; object-fit:cover; border-radius:10px; display:block; margin-bottom:8px; }
         .popup-actions { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
         .popup-actions a { color:#fff !important; text-decoration:none; background:var(--primary); padding:6px 8px; border-radius:8px; font-weight:600; }
-        @media (max-width: 900px) { .map-layout { grid-template-columns:1fr; } #map { height:420px; min-height:420px; } .panel { max-height:none; } }
+        @media (max-width: 900px) { .map-layout { grid-template-columns:1fr; } #map { min-height:420px; } .panel { max-height:none; } }
     </style>
 </head>
 <body>
@@ -46,11 +46,10 @@
     </section>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 <script>
-const map = L.map('map', { maxBounds: [[-12.55, -77.25], [-11.65, -76.65]], maxBoundsViscosity: 0.8 }).setView([-12.0464, -77.0428], 11);
-setTimeout(() => map.invalidateSize(), 100);
+const map = L.map('map').setView([-12.0464, -77.0428], 11);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap contributors'
